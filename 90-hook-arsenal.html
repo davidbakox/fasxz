@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>90 Hook Arsenal</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080808;
+    --s1: #0f0f0f;
+    --s2: #151515;
+    --border: #1f1f1f;
+    --muted: #3a3a3a;
+    --dim: #666;
+    --text: #ececec;
+    --soft: #aaa;
+
+    /* Type colors */
+    --incomplete: #f5c518;
+    --mirror: #e05252;
+    --slang: #3ec6a0;
+    --interrupt: #5b9bd5;
+    --feeling: #d97fe0;
+    --elite: #ff7a3d;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Scanline texture */
+  body::before {
+    content:'';
+    position:fixed;
+    inset:0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255,255,255,0.008) 2px,
+      rgba(255,255,255,0.008) 4px
+    );
+    pointer-events:none;
+    z-index:0;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position:relative;
+    z-index:2;
+    padding: 80px 60px 64px;
+    border-bottom: 1px solid var(--border);
+    overflow:hidden;
+  }
+
+  .h-bg-text {
+    position:absolute;
+    right:-60px;
+    top:-40px;
+    font-family:'Unbounded',sans-serif;
+    font-size:260px;
+    font-weight:900;
+    color:rgba(255,255,255,0.018);
+    line-height:1;
+    pointer-events:none;
+    letter-spacing:-0.05em;
+  }
+
+  .h-eyebrow {
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:28px;
+  }
+
+  .h-eyebrow-line {
+    width:32px; height:1px;
+    background: var(--elite);
+  }
+
+  .h-eyebrow-text {
+    font-size:10px;
+    font-weight:500;
+    letter-spacing:0.28em;
+    text-transform:uppercase;
+    color: var(--elite);
+  }
+
+  h1 {
+    font-family:'Unbounded',sans-serif;
+    font-size: clamp(40px,6vw,80px);
+    font-weight:900;
+    line-height:1;
+    letter-spacing:-0.03em;
+  }
+
+  h1 .n { color: var(--elite); }
+  h1 .o {
+    -webkit-text-stroke:1px rgba(236,236,236,0.2);
+    color:transparent;
+  }
+
+  .h-sub {
+    margin-top:24px;
+    font-size:13px;
+    font-weight:300;
+    color:var(--dim);
+    max-width:500px;
+    line-height:1.8;
+  }
+
+  /* Type legend */
+  .type-legend {
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:36px;
+  }
+
+  .tl {
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:7px 14px;
+    border:1px solid var(--border);
+    border-radius:100px;
+    font-size:10px;
+    font-weight:500;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--dim);
+    cursor:pointer;
+    transition: all 0.2s;
+  }
+
+  .tl:hover, .tl.on {
+    border-color: var(--tc);
+    color: var(--tc);
+    background: color-mix(in srgb, var(--tc) 8%, transparent);
+  }
+
+  .tl-dot {
+    width:6px; height:6px;
+    border-radius:50%;
+    background: var(--tc);
+    flex-shrink:0;
+  }
+
+  /* ── CONTROLS ── */
+  .controls {
+    position:relative;
+    z-index:2;
+    padding:0 60px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    gap:0;
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
+  .controls::-webkit-scrollbar { display:none; }
+
+  .ctrl-btn {
+    padding:16px 22px;
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--muted);
+    white-space:nowrap;
+    cursor:pointer;
+    border-bottom:2px solid transparent;
+    margin-bottom:-1px;
+    transition:all 0.2s;
+    border-right:1px solid var(--border);
+  }
+
+  .ctrl-btn:hover { color:var(--text); background:var(--s1); }
+  .ctrl-btn.active { color:var(--tc,var(--text)); border-bottom-color:var(--tc,var(--text)); }
+
+  /* ── MAIN ── */
+  main {
+    position:relative;
+    z-index:2;
+    padding:48px 60px 100px;
+  }
+
+  .section-head {
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:6px;
+    padding-bottom:16px;
+    border-bottom:1px solid var(--border);
+  }
+
+  .sh-accent {
+    width:3px;
+    height:32px;
+    background:var(--tc);
+    border-radius:2px;
+    flex-shrink:0;
+  }
+
+  .sh-info { flex:1; }
+
+  .sh-label {
+    font-size:9px;
+    font-weight:700;
+    letter-spacing:0.25em;
+    text-transform:uppercase;
+    color:var(--tc);
+    margin-bottom:3px;
+  }
+
+  .sh-title {
+    font-family:'Unbounded',sans-serif;
+    font-size:14px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    color:var(--text);
+  }
+
+  .sh-desc {
+    font-size:11px;
+    font-style:italic;
+    color:var(--dim);
+    margin-top:2px;
+  }
+
+  .sh-count {
+    font-family:'Unbounded',sans-serif;
+    font-size:40px;
+    font-weight:900;
+    color:var(--border);
+    line-height:1;
+  }
+
+  /* ── HOOK CARDS ── */
+  .hooks-grid {
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    margin-bottom:64px;
+  }
+
+  .hook {
+    display:grid;
+    grid-template-columns:50px 1fr 44px;
+    background:var(--s1);
+    transition: background 0.15s, transform 0.15s;
+    cursor:default;
+    position:relative;
+    border-left:2px solid transparent;
+  }
+
+  .hook:hover {
+    background:var(--s2);
+    transform:translateX(3px);
+    border-left-color:var(--tc);
+  }
+
+  /* Elite hooks */
+  .hook.elite-hook {
+    border-left:2px solid var(--elite);
+    background:#0d0a07;
+  }
+
+  .hook.elite-hook:hover {
+    background:#111009;
+    transform:translateX(3px);
+  }
+
+  .hook-idx {
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:20px 0 0;
+    font-size:9px;
+    font-weight:700;
+    letter-spacing:0.05em;
+    color:var(--muted);
+    border-right:1px solid var(--border);
+  }
+
+  .hook-body {
+    padding:18px 24px 16px;
+  }
+
+  .hook-text {
+    font-size:15px;
+    font-weight:500;
+    line-height:1.62;
+    color:var(--text);
+  }
+
+  .hook.elite-hook .hook-text {
+    font-size:16px;
+    color:#fff;
+    font-weight:600;
+  }
+
+  .hook-tags {
+    display:flex;
+    gap:5px;
+    margin-top:9px;
+    flex-wrap:wrap;
+  }
+
+  .htag {
+    font-size:8px;
+    font-weight:700;
+    letter-spacing:0.15em;
+    text-transform:uppercase;
+    padding:2px 7px;
+    border-radius:2px;
+  }
+
+  .htag-type {
+    background: color-mix(in srgb, var(--tc) 14%, transparent);
+    color: var(--tc);
+  }
+
+  .htag-elite {
+    background: color-mix(in srgb, var(--elite) 18%, transparent);
+    color: var(--elite);
+  }
+
+  .htag-new {
+    background: color-mix(in srgb, #3ec6a0 12%, transparent);
+    color: #3ec6a0;
+  }
+
+  .hook-bar {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-left:1px solid var(--border);
+    writing-mode:vertical-rl;
+    text-orientation:mixed;
+    font-size:8px;
+    font-weight:700;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--border);
+    padding:0 10px;
+    transition:color 0.2s;
+  }
+
+  .hook:hover .hook-bar { color:var(--tc); }
+  .hook.elite-hook .hook-bar { color: var(--elite); opacity:0.4; }
+
+  /* Hidden state for filtering */
+  .hook.hidden { display:none; }
+
+  /* ── FOOTER ── */
+  footer {
+    position:relative;
+    z-index:2;
+    border-top:1px solid var(--border);
+    padding:24px 60px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:9px;
+    font-weight:700;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+
+  @media(max-width:680px){
+    header,main,footer,.controls{ padding-left:20px; padding-right:20px; }
+    h1 { font-size:36px; }
+    .hook { grid-template-columns:36px 1fr; }
+    .hook-bar { display:none; }
+    .h-bg-text { display:none; }
+  }
+
+  @keyframes up {
+    from { opacity:0; transform:translateY(8px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .hook { animation:up 0.3s ease both; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="h-bg-text">90</div>
+  <div class="h-eyebrow">
+    <div class="h-eyebrow-line"></div>
+    <span class="h-eyebrow-text">Master Arsenal · TikTok · Full Authority</span>
+    <div class="h-eyebrow-line"></div>
+  </div>
+  <h1>THE <span class="n">90</span><br><span class="o">HOOK</span><br>ARSENAL</h1>
+  <p class="h-sub">Six hook types. Every lesson from this conversation applied. Old hooks that earned their place. New hooks pushing further. Full creative authority exercised.</p>
+
+  <div class="type-legend">
+    <div class="tl on" style="--tc:var(--incomplete)" onclick="filterType('incomplete',this)">
+      <div class="tl-dot"></div>Incomplete Statement
+    </div>
+    <div class="tl on" style="--tc:var(--mirror)" onclick="filterType('mirror',this)">
+      <div class="tl-dot"></div>Mirror / Feel Seen
+    </div>
+    <div class="tl on" style="--tc:var(--slang)" onclick="filterType('slang',this)">
+      <div class="tl-dot"></div>Cultural Slang
+    </div>
+    <div class="tl on" style="--tc:var(--interrupt)" onclick="filterType('interrupt',this)">
+      <div class="tl-dot"></div>Pattern Interrupt
+    </div>
+    <div class="tl on" style="--tc:var(--feeling)" onclick="filterType('feeling',this)">
+      <div class="tl-dot"></div>Feeling Hook
+    </div>
+    <div class="tl on" style="--tc:var(--elite)" onclick="filterType('elite',this)">
+      <div class="tl-dot"></div>Elite Hybrid
+    </div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="ctrl-btn active" style="--tc:var(--text)" onclick="showAll(this)">All 90</div>
+  <div class="ctrl-btn" style="--tc:var(--incomplete)" onclick="scrollTo('sec-incomplete')">Incomplete</div>
+  <div class="ctrl-btn" style="--tc:var(--mirror)" onclick="scrollTo('sec-mirror')">Mirror</div>
+  <div class="ctrl-btn" style="--tc:var(--slang)" onclick="scrollTo('sec-slang')">Cultural Slang</div>
+  <div class="ctrl-btn" style="--tc:var(--interrupt)" onclick="scrollTo('sec-interrupt')">Interrupt</div>
+  <div class="ctrl-btn" style="--tc:var(--feeling)" onclick="scrollTo('sec-feeling')">Feeling</div>
+  <div class="ctrl-btn" style="--tc:var(--elite);border-right:none" onclick="scrollTo('sec-elite')">Elite</div>
+</div>
+
+<main>
+
+<!-- ════════════════════════════════
+     1. INCOMPLETE STATEMENT  (20)
+════════════════════════════════ -->
+<div id="sec-incomplete">
+  <div class="section-head" style="--tc:var(--incomplete)">
+    <div class="sh-accent"></div>
+    <div class="sh-info">
+      <p class="sh-label">Type 01 · Zeigarnik Engine</p>
+      <p class="sh-title">Incomplete Statement</p>
+      <p class="sh-desc">Unfinished thought — brain cannot scroll away until it gets the answer</p>
+    </div>
+    <div class="sh-count">20</div>
+  </div>
+  <div class="hooks-grid" style="--tc:var(--incomplete)">
+
+    <div class="hook" data-type="incomplete"><div class="hook-idx">01</div><div class="hook-body"><p class="hook-text">This is why most people stay broke their entire life.</p><div class="hook-tags"><span class="htag htag-type">incomplete</span></div></div><div class="hook-bar">Incomplete</div></div>
+
+    <div class="hook" data-type="incomplete"><div class="hook-idx">02</div><div class="hook-body"><p class="hook-text">This is why most people never become rich online.</p><div class="hook-tags"><span class="htag htag-type">incomplete</span></div></div><div class="hook-bar">Incomplete</div></div>
+
+    <div class="hook" data-type="incomplete"><div class="hook-idx">03</div><div class="hook-body"><p class="hook-text">This is the reason most people never escape the 9 to 5.</p><div class="hook-tags"><span class="htag htag-type">incomplete</span></div></div><div class="hook-bar">Incomplete</div></div>
+
+    <div class="hook" data-type="incomplete"><div class="hook-idx">04</div><div class="hook-body"><p class="hook-text">This is what separates the people who make it from the ones who don't.</p><div class="hook-tags"><span class="htag htag-type">incomplete</span></div></div><div class="hook-bar">Incomplete</div></div>
+
+    <div class="hook" data-type="incomplete"><div class="hook-idx">05</div><div class="hook-body"><p class="hook-text">This is the one thing nobody teaches you about making money online.</p><div class="hook-tags"><span class="htag htag-type">incomplete</span></div></div><div class="hook-bar">Incomplete</div></div>
+
+    <div class="hook" data-type="incomplete"><div class="hook-idx">06</div><div class="hook-body"><p class="hook-text">This is why smart people stay poor longer than anyone else.</p><div class="hook-tags"><span class="htag htag-type">incomplete</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Incomplete</div></div>
+
+    <div class="hook" data-type="incomplete"><div class="hook-idx">07</div><div class="hook-body"><p class="hook-text">This is the mistake that keeps most young people inside the matrix.</p><div class="hook-tags"><span class="htag htag-type">incomplete</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Incomplete</div></div>
+
+    <div class="hook" data-type="incomplete"><div class="hook-idx">08</div><div class="hook-body"><p class="hook-text">This is why most people work forty years and retire with nothing.</p><div class="hook-tags"><span class="htag htag-type">incomplete</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Incomplete</div></div>
+
+    <div class="hook" data-type="incomplete"><div class="hook-idx">09</div><div class="hook-body"><p class="hook-text">This is what the internet does for regular people that nobody talks about.</p><div class="hook-tags"><span class="htag htag-type">incomplete</span></div></div><div class="hook-bar">Incomplete</div></div>
+
+    <div class="hook" data-type="incomplete"><div class="hook-idx">10</div><div class="hook-body"><p class="hook-text">This is the only skill that actually matters if you want to make money online.</p><div class="hook-tags"><span class="htag htag-type">incomplete</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Incomplete</div></div>
+
+    <div class="hook" data-type="incomplete"><div class="hook-idx">11</div><div class="hook-body"><p class="hook-text">This is why most people who try to build online give up after three months.</p><div class="hook-tags"><span class="htag htag-type">incomplete</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Incomplete</div></div>
+
+    <div class="hook" data-type="incomplete"><div class="hook-idx">12</div><div class="hook-body"><p class="hook-text">This is how one person with no following built a full income online.</p><div class="hook-tags"><span class="htag htag-type">incomplete</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Incomplete</div></div>
+
+    <div class="hook" data-type="incomplete"><div class="hook-idx">13</div><div class="hook-body"><p class="hook-text">This is the trap that keeps ambitious people broke the longest.</p><div class="hook-tags"><span class="htag htag-type">incomplete</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Incomplete</div></div>
+
+    <div class="hook" data-type="incomplete"><div class="hook-idx">14</div><div class="hook-body"><p class="hook-text">This is why most people are one skill away from freedom and never find the skill.</p><div class="hook-tags"><span class="htag htag-type">incomplete</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Incomplete</div></div>
+
+    <div class="hook" data-type="incomplete"><div class="hook-idx">15</div><div class="hook-body"><p class="hook-text">This is what school spent twelve years making sure you never learned.</p><div class="hook-tags"><span class="htag htag-type">incomplete</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Incomplete</div></div>
+
+    <div class="hook" data-type="incomplete"><div class="hook-idx">16</div><div class="hook-body"><p class="hook-text">This is the reason most creators never get past a thousand followers.</p><div class="hook-tags"><span class="htag htag-type">incomplete</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Incomplete</div></div>
+
+    <div class="hook" data-type="incomplete"><div class="hook-idx">17</div><div class="hook-body"><p class="hook-text">This is how the algorithm actually decides who it shows and who it buries.</p><div class="hook-tags"><span class="htag htag-type">incomplete</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Incomplete</div></div>
+
+    <div class="hook" data-type="incomplete"><div class="hook-idx">18</div><div class="hook-body"><p class="hook-text">This is why most people spend years trying to make money online and never do.</p><div class="hook-tags"><span class="htag htag-type">incomplete</span></div></div><div class="hook-bar">Incomplete</div></div>
+
+    <div class="hook" data-type="incomplete"><div class="hook-idx">19</div><div class="hook-body"><p class="hook-text">This is the window that's open right now that most people will miss completely.</p><div class="hook-tags"><span class="htag htag-type">incomplete</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Incomplete</div></div>
+
+    <div class="hook" data-type="incomplete"><div class="hook-idx">20</div><div class="hook-body"><p class="hook-text">This is what happens when a regular person finally stops waiting and just starts.</p><div class="hook-tags"><span class="htag htag-type">incomplete</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Incomplete</div></div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     2. MIRROR / FEEL SEEN  (15)
+════════════════════════════════ -->
+<div id="sec-mirror">
+  <div class="section-head" style="--tc:var(--mirror)">
+    <div class="sh-accent"></div>
+    <div class="sh-info">
+      <p class="sh-label">Type 02 · Zeigarnik Engine</p>
+      <p class="sh-title">Mirror / Feel Seen</p>
+      <p class="sh-desc">They don't feel taught — they feel caught. That's what builds followers.</p>
+    </div>
+    <div class="sh-count">15</div>
+  </div>
+  <div class="hooks-grid" style="--tc:var(--mirror)">
+
+    <div class="hook" data-type="mirror"><div class="hook-idx">21</div><div class="hook-body"><p class="hook-text">You told yourself you'd start this weekend. It's been six weekends. I know because I did the same thing.</p><div class="hook-tags"><span class="htag htag-type">mirror</span></div></div><div class="hook-bar">Mirror</div></div>
+
+    <div class="hook" data-type="mirror"><div class="hook-idx">22</div><div class="hook-body"><p class="hook-text">You already know what to do. You just haven't done it. That's the whole problem right there.</p><div class="hook-tags"><span class="htag htag-type">mirror</span></div></div><div class="hook-bar">Mirror</div></div>
+
+    <div class="hook" data-type="mirror"><div class="hook-idx">23</div><div class="hook-body"><p class="hook-text">You don't have a learning problem. You don't have a talent problem. You have a doing problem. Big difference.</p><div class="hook-tags"><span class="htag htag-type">mirror</span></div></div><div class="hook-bar">Mirror</div></div>
+
+    <div class="hook" data-type="mirror"><div class="hook-idx">24</div><div class="hook-body"><p class="hook-text">You're not lazy. You're exhausted from building someone else's dream and calling it a career.</p><div class="hook-tags"><span class="htag htag-type">mirror</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Mirror</div></div>
+
+    <div class="hook" data-type="mirror"><div class="hook-idx">25</div><div class="hook-body"><p class="hook-text">I spent two years watching videos about making money online instead of making money online. Don't do what I did.</p><div class="hook-tags"><span class="htag htag-type">mirror</span></div></div><div class="hook-bar">Mirror</div></div>
+
+    <div class="hook" data-type="mirror"><div class="hook-idx">26</div><div class="hook-body"><p class="hook-text">You've been consuming content about making money online instead of making money online. That's the whole trap.</p><div class="hook-tags"><span class="htag htag-type">mirror</span></div></div><div class="hook-bar">Mirror</div></div>
+
+    <div class="hook" data-type="mirror"><div class="hook-idx">27</div><div class="hook-body"><p class="hook-text">The version of you that plays it safe will never meet the version of you that was actually possible.</p><div class="hook-tags"><span class="htag htag-type">mirror</span></div></div><div class="hook-bar">Mirror</div></div>
+
+    <div class="hook" data-type="mirror"><div class="hook-idx">28</div><div class="hook-body"><p class="hook-text">You keep saying you'll start when things calm down. Things aren't going to calm down. That's not how it works.</p><div class="hook-tags"><span class="htag htag-type">mirror</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Mirror</div></div>
+
+    <div class="hook" data-type="mirror"><div class="hook-idx">29</div><div class="hook-body"><p class="hook-text">The thing keeping you stuck is not what you think it is. And nobody around you can see it either.</p><div class="hook-tags"><span class="htag htag-type">mirror</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Mirror</div></div>
+
+    <div class="hook" data-type="mirror"><div class="hook-idx">30</div><div class="hook-body"><p class="hook-text">If you feel like you were built for more than this, you're probably right. Here's what to do about it.</p><div class="hook-tags"><span class="htag htag-type">mirror</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Mirror</div></div>
+
+    <div class="hook" data-type="mirror"><div class="hook-idx">31</div><div class="hook-body"><p class="hook-text">I made this mistake for eighteen months. You might be making it right now and not even know it.</p><div class="hook-tags"><span class="htag htag-type">mirror</span></div></div><div class="hook-bar">Mirror</div></div>
+
+    <div class="hook" data-type="mirror"><div class="hook-idx">32</div><div class="hook-body"><p class="hook-text">You're scrolling right now on the same device that could change your financial life. That's not ironic. That's a problem.</p><div class="hook-tags"><span class="htag htag-type">mirror</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Mirror</div></div>
+
+    <div class="hook" data-type="mirror"><div class="hook-idx">33</div><div class="hook-body"><p class="hook-text">Every year you wait costs you more than the year before. Most people never do that math.</p><div class="hook-tags"><span class="htag htag-type">mirror</span></div></div><div class="hook-bar">Mirror</div></div>
+
+    <div class="hook" data-type="mirror"><div class="hook-idx">34</div><div class="hook-body"><p class="hook-text">Most people will look back at this exact moment in their life and wish they had just started.</p><div class="hook-tags"><span class="htag htag-type">mirror</span></div></div><div class="hook-bar">Mirror</div></div>
+
+    <div class="hook" data-type="mirror"><div class="hook-idx">35</div><div class="hook-body"><p class="hook-text">Nobody warned me about this trap. I walked straight into it. So did almost everyone I know.</p><div class="hook-tags"><span class="htag htag-type">mirror</span></div></div><div class="hook-bar">Mirror</div></div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     3. CULTURAL SLANG  (15)
+════════════════════════════════ -->
+<div id="sec-slang">
+  <div class="section-head" style="--tc:var(--slang)">
+    <div class="sh-accent"></div>
+    <div class="sh-info">
+      <p class="sh-label">Type 03 · Pre-Loaded Emotion</p>
+      <p class="sh-title">Cultural Slang / Borrowed Concept</p>
+      <p class="sh-desc">Borrowed words carry pre-built feeling. The brain lights up before it processes.</p>
+    </div>
+    <div class="sh-count">15</div>
+  </div>
+  <div class="hooks-grid" style="--tc:var(--slang)">
+
+    <div class="hook" data-type="slang"><div class="hook-idx">36</div><div class="hook-body"><p class="hook-text">This mistake keeps all young people inside the matrix and most of them never escape.</p><div class="hook-tags"><span class="htag htag-type">slang</span></div></div><div class="hook-bar">Slang</div></div>
+
+    <div class="hook" data-type="slang"><div class="hook-idx">37</div><div class="hook-body"><p class="hook-text">The matrix is real. It's just not what the movie told you it was.</p><div class="hook-tags"><span class="htag htag-type">slang</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Slang</div></div>
+
+    <div class="hook" data-type="slang"><div class="hook-idx">38</div><div class="hook-body"><p class="hook-text">Most people are trying to escape the 9 to 5 and walking straight into another one online.</p><div class="hook-tags"><span class="htag htag-type">slang</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Slang</div></div>
+
+    <div class="hook" data-type="slang"><div class="hook-idx">39</div><div class="hook-body"><p class="hook-text">This is why most people take the blue pill without even being offered the red one.</p><div class="hook-tags"><span class="htag htag-type">slang</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Slang</div></div>
+
+    <div class="hook" data-type="slang"><div class="hook-idx">40</div><div class="hook-body"><p class="hook-text">School didn't teach you math. It taught you to sit still, follow instructions, and call it education.</p><div class="hook-tags"><span class="htag htag-type">slang</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Slang</div></div>
+
+    <div class="hook" data-type="slang"><div class="hook-idx">41</div><div class="hook-body"><p class="hook-text">The rat race is designed to feel like progress. That's why most people never notice they're in it.</p><div class="hook-tags"><span class="htag htag-type">slang</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Slang</div></div>
+
+    <div class="hook" data-type="slang"><div class="hook-idx">42</div><div class="hook-body"><p class="hook-text">Most people are sheep and the scary part is they think they're being smart.</p><div class="hook-tags"><span class="htag htag-type">slang</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Slang</div></div>
+
+    <div class="hook" data-type="slang"><div class="hook-idx">43</div><div class="hook-body"><p class="hook-text">The 9 to 5 was never a path to wealth. It was always a path to just enough.</p><div class="hook-tags"><span class="htag htag-type">slang</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Slang</div></div>
+
+    <div class="hook" data-type="slang"><div class="hook-idx">44</div><div class="hook-body"><p class="hook-text">If you're still trading time for money you haven't escaped anything. You just have a nicer cage.</p><div class="hook-tags"><span class="htag htag-type">slang</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Slang</div></div>
+
+    <div class="hook" data-type="slang"><div class="hook-idx">45</div><div class="hook-body"><p class="hook-text">The hustle culture they sold you was designed to keep you busy enough to never question the system.</p><div class="hook-tags"><span class="htag htag-type">slang</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Slang</div></div>
+
+    <div class="hook" data-type="slang"><div class="hook-idx">46</div><div class="hook-body"><p class="hook-text">Okay so nobody told you this but getting good grades was literally training you to follow instructions.</p><div class="hook-tags"><span class="htag htag-type">slang</span></div></div><div class="hook-bar">Slang</div></div>
+
+    <div class="hook" data-type="slang"><div class="hook-idx">47</div><div class="hook-body"><p class="hook-text">Side hustle culture is keeping more people broke than it's setting free. Here's the actual reason why.</p><div class="hook-tags"><span class="htag htag-type">slang</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Slang</div></div>
+
+    <div class="hook" data-type="slang"><div class="hook-idx">48</div><div class="hook-body"><p class="hook-text">Your parents told you to get a good job. Their parents told them the same thing. This is why the cycle never breaks.</p><div class="hook-tags"><span class="htag htag-type">slang</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Slang</div></div>
+
+    <div class="hook" data-type="slang"><div class="hook-idx">49</div><div class="hook-body"><p class="hook-text">Passive income isn't a myth. It's just not what most gurus are selling you.</p><div class="hook-tags"><span class="htag htag-type">slang</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Slang</div></div>
+
+    <div class="hook" data-type="slang"><div class="hook-idx">50</div><div class="hook-body"><p class="hook-text">Grinding harder inside the wrong system is still the wrong system. This is the part nobody talks about.</p><div class="hook-tags"><span class="htag htag-type">slang</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Slang</div></div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     4. PATTERN INTERRUPT  (15)
+════════════════════════════════ -->
+<div id="sec-interrupt">
+  <div class="section-head" style="--tc:var(--interrupt)">
+    <div class="sh-accent"></div>
+    <div class="sh-info">
+      <p class="sh-label">Type 04 · First Word Stops The Thumb</p>
+      <p class="sh-title">Pattern Interrupt</p>
+      <p class="sh-desc">The opening word or phrase breaks autopilot before the brain decides whether to care.</p>
+    </div>
+    <div class="sh-count">15</div>
+  </div>
+  <div class="hooks-grid" style="--tc:var(--interrupt)">
+
+    <div class="hook" data-type="interrupt"><div class="hook-idx">51</div><div class="hook-body"><p class="hook-text">Stop. You were not built to work forty years for someone else's dream.</p><div class="hook-tags"><span class="htag htag-type">interrupt</span></div></div><div class="hook-bar">Interrupt</div></div>
+
+    <div class="hook" data-type="interrupt"><div class="hook-idx">52</div><div class="hook-body"><p class="hook-text">Real talk. You're not lazy. You're just running someone else's operating system.</p><div class="hook-tags"><span class="htag htag-type">interrupt</span></div></div><div class="hook-bar">Interrupt</div></div>
+
+    <div class="hook" data-type="interrupt"><div class="hook-idx">53</div><div class="hook-body"><p class="hook-text">Wait. Nobody actually explained to you how money works, did they.</p><div class="hook-tags"><span class="htag htag-type">interrupt</span></div></div><div class="hook-bar">Interrupt</div></div>
+
+    <div class="hook" data-type="interrupt"><div class="hook-idx">54</div><div class="hook-body"><p class="hook-text">...and that's why the smartest kid in the class is usually the most broke adult in the room.</p><div class="hook-tags"><span class="htag htag-type">interrupt</span></div></div><div class="hook-bar">Interrupt</div></div>
+
+    <div class="hook" data-type="interrupt"><div class="hook-idx">55</div><div class="hook-body"><p class="hook-text">Actually — a seventeen year old with no wifi and a cracked screen figured this out before most adults ever will.</p><div class="hook-tags"><span class="htag htag-type">interrupt</span></div></div><div class="hook-bar">Interrupt</div></div>
+
+    <div class="hook" data-type="interrupt"><div class="hook-idx">56</div><div class="hook-body"><p class="hook-text">I'm not going to explain this twice — most people are broke online for one specific reason and it's not what you think.</p><div class="hook-tags"><span class="htag htag-type">interrupt</span></div></div><div class="hook-bar">Interrupt</div></div>
+
+    <div class="hook" data-type="interrupt"><div class="hook-idx">57</div><div class="hook-body"><p class="hook-text">Stop scrolling. I mean it. What I'm about to tell you took me three years to learn and thirty seconds to explain.</p><div class="hook-tags"><span class="htag htag-type">interrupt</span></div></div><div class="hook-bar">Interrupt</div></div>
+
+    <div class="hook" data-type="interrupt"><div class="hook-idx">58</div><div class="hook-body"><p class="hook-text">Okay. No degree. No experience. No money. And this person still replaced their salary in ninety days. Here's how.</p><div class="hook-tags"><span class="htag htag-type">interrupt</span></div></div><div class="hook-bar">Interrupt</div></div>
+
+    <div class="hook" data-type="interrupt"><div class="hook-idx">59</div><div class="hook-body"><p class="hook-text">Honestly — your great grandparents couldn't have imagined what you can do with a phone and twenty minutes a day.</p><div class="hook-tags"><span class="htag htag-type">interrupt</span></div></div><div class="hook-bar">Interrupt</div></div>
+
+    <div class="hook" data-type="interrupt"><div class="hook-idx">60</div><div class="hook-body"><p class="hook-text">You know what. Most people will look back at this exact moment and wish they had just started.</p><div class="hook-tags"><span class="htag htag-type">interrupt</span></div></div><div class="hook-bar">Interrupt</div></div>
+
+    <div class="hook" data-type="interrupt"><div class="hook-idx">61</div><div class="hook-body"><p class="hook-text">No seriously. The barrier to changing your life online has never been lower in human history.</p><div class="hook-tags"><span class="htag htag-type">interrupt</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Interrupt</div></div>
+
+    <div class="hook" data-type="interrupt"><div class="hook-idx">62</div><div class="hook-body"><p class="hook-text">Hear me out. Most people are one decision away from a completely different financial life.</p><div class="hook-tags"><span class="htag htag-type">interrupt</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Interrupt</div></div>
+
+    <div class="hook" data-type="interrupt"><div class="hook-idx">63</div><div class="hook-body"><p class="hook-text">Look — I'm going to say something that's going to make a lot of people uncomfortable.</p><div class="hook-tags"><span class="htag htag-type">interrupt</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Interrupt</div></div>
+
+    <div class="hook" data-type="interrupt"><div class="hook-idx">64</div><div class="hook-body"><p class="hook-text">One. Person. One phone. More reach than a newspaper that took a hundred people to run.</p><div class="hook-tags"><span class="htag htag-type">interrupt</span></div></div><div class="hook-bar">Interrupt</div></div>
+
+    <div class="hook" data-type="interrupt"><div class="hook-idx">65</div><div class="hook-body"><p class="hook-text">Real talk — the first thing most people do to make money online is the exact thing that makes it impossible.</p><div class="hook-tags"><span class="htag htag-type">interrupt</span></div></div><div class="hook-bar">Interrupt</div></div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     5. FEELING HOOK  (15)
+════════════════════════════════ -->
+<div id="sec-feeling">
+  <div class="section-head" style="--tc:var(--feeling)">
+    <div class="sh-accent"></div>
+    <div class="sh-info">
+      <p class="sh-label">Type 05 · Chest Before Brain</p>
+      <p class="sh-title">Feeling Hook</p>
+      <p class="sh-desc">Hits emotionally before it's intellectually processed. Builds loyal audiences not just views.</p>
+    </div>
+    <div class="sh-count">15</div>
+  </div>
+  <div class="hooks-grid" style="--tc:var(--feeling)">
+
+    <div class="hook" data-type="feeling"><div class="hook-idx">66</div><div class="hook-body"><p class="hook-text">You are not lazy. You were just never shown the right game.</p><div class="hook-tags"><span class="htag htag-type">feeling</span></div></div><div class="hook-bar">Feeling</div></div>
+
+    <div class="hook" data-type="feeling"><div class="hook-idx">67</div><div class="hook-body"><p class="hook-text">Nobody is coming to pick you. That's actually the best news you'll ever hear.</p><div class="hook-tags"><span class="htag htag-type">feeling</span></div></div><div class="hook-bar">Feeling</div></div>
+
+    <div class="hook" data-type="feeling"><div class="hook-idx">68</div><div class="hook-body"><p class="hook-text">Your parents gave you the best advice they had. It just expired twenty years ago.</p><div class="hook-tags"><span class="htag htag-type">feeling</span></div></div><div class="hook-bar">Feeling</div></div>
+
+    <div class="hook" data-type="feeling"><div class="hook-idx">69</div><div class="hook-body"><p class="hook-text">Nobody taught us this was even possible. So most people never tried.</p><div class="hook-tags"><span class="htag htag-type">feeling</span></div></div><div class="hook-bar">Feeling</div></div>
+
+    <div class="hook" data-type="feeling"><div class="hook-idx">70</div><div class="hook-body"><p class="hook-text">You're not behind. You're just early and nobody told you.</p><div class="hook-tags"><span class="htag htag-type">feeling</span></div></div><div class="hook-bar">Feeling</div></div>
+
+    <div class="hook" data-type="feeling"><div class="hook-idx">71</div><div class="hook-body"><p class="hook-text">The school system taught you everything except how to survive outside of it.</p><div class="hook-tags"><span class="htag htag-type">feeling</span></div></div><div class="hook-bar">Feeling</div></div>
+
+    <div class="hook" data-type="feeling"><div class="hook-idx">72</div><div class="hook-body"><p class="hook-text">The moment I stopped waiting to feel ready was the moment everything actually started.</p><div class="hook-tags"><span class="htag htag-type">feeling</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Feeling</div></div>
+
+    <div class="hook" data-type="feeling"><div class="hook-idx">73</div><div class="hook-body"><p class="hook-text">In ten years people will talk about right now the same way they talk about buying Apple stock in 2004.</p><div class="hook-tags"><span class="htag htag-type">feeling</span></div></div><div class="hook-bar">Feeling</div></div>
+
+    <div class="hook" data-type="feeling"><div class="hook-idx">74</div><div class="hook-body"><p class="hook-text">The internet doesn't care how old you are, where you're from, or who your parents know. That still feels radical to me.</p><div class="hook-tags"><span class="htag htag-type">feeling</span></div></div><div class="hook-bar">Feeling</div></div>
+
+    <div class="hook" data-type="feeling"><div class="hook-idx">75</div><div class="hook-body"><p class="hook-text">Somewhere right now a sixteen year old is building something that will make them more money than their teacher ever made.</p><div class="hook-tags"><span class="htag htag-type">feeling</span></div></div><div class="hook-bar">Feeling</div></div>
+
+    <div class="hook" data-type="feeling"><div class="hook-idx">76</div><div class="hook-body"><p class="hook-text">You have more tools to build wealth today than any billionaire had access to twenty years ago. That's not motivation. That's a fact.</p><div class="hook-tags"><span class="htag htag-type">feeling</span></div></div><div class="hook-bar">Feeling</div></div>
+
+    <div class="hook" data-type="feeling"><div class="hook-idx">77</div><div class="hook-body"><p class="hook-text">Most people are waiting to feel ready. The people winning online felt the exact same way. They just started anyway.</p><div class="hook-tags"><span class="htag htag-type">feeling</span></div></div><div class="hook-bar">Feeling</div></div>
+
+    <div class="hook" data-type="feeling"><div class="hook-idx">78</div><div class="hook-body"><p class="hook-text">There's a version of you that made the decision. This is what their life looks like.</p><div class="hook-tags"><span class="htag htag-type">feeling</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Feeling</div></div>
+
+    <div class="hook" data-type="feeling"><div class="hook-idx">79</div><div class="hook-body"><p class="hook-text">The people winning online don't have more talent than you. They just stopped asking for permission earlier.</p><div class="hook-tags"><span class="htag htag-type">feeling</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Feeling</div></div>
+
+    <div class="hook" data-type="feeling"><div class="hook-idx">80</div><div class="hook-body"><p class="hook-text">Every overnight success story has a two-year chapter nobody filmed. That chapter is actually the whole secret.</p><div class="hook-tags"><span class="htag htag-type">feeling</span></div></div><div class="hook-bar">Feeling</div></div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     6. ELITE HYBRID  (10)
+════════════════════════════════ -->
+<div id="sec-elite">
+  <div class="section-head" style="--tc:var(--elite)">
+    <div class="sh-accent"></div>
+    <div class="sh-info">
+      <p class="sh-label">Type 06 · All Layers Firing</p>
+      <p class="sh-title">Elite Hybrid</p>
+      <p class="sh-desc">Every layer active simultaneously. These are the ones you open a channel with.</p>
+    </div>
+    <div class="sh-count">10</div>
+  </div>
+  <div class="hooks-grid" style="--tc:var(--elite)">
+
+    <div class="hook elite-hook" data-type="elite"><div class="hook-idx">81</div><div class="hook-body"><p class="hook-text">Most people never see the system. The system sees them.</p><div class="hook-tags"><span class="htag htag-type">elite</span><span class="htag htag-elite">★ all layers</span></div></div><div class="hook-bar">Elite</div></div>
+
+    <div class="hook elite-hook" data-type="elite"><div class="hook-idx">82</div><div class="hook-body"><p class="hook-text">This is why the matrix keeps most people broke — and the scary part is it's designed to feel normal.</p><div class="hook-tags"><span class="htag htag-type">elite</span><span class="htag htag-elite">★ all layers</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Elite</div></div>
+
+    <div class="hook elite-hook" data-type="elite"><div class="hook-idx">83</div><div class="hook-body"><p class="hook-text">Stop. This is exactly why you're still stuck — and it has nothing to do with how hard you're working.</p><div class="hook-tags"><span class="htag htag-type">elite</span><span class="htag htag-elite">★ all layers</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Elite</div></div>
+
+    <div class="hook elite-hook" data-type="elite"><div class="hook-idx">84</div><div class="hook-body"><p class="hook-text">Real talk. This is the reason most people never escape the 9 to 5 no matter how hard they try.</p><div class="hook-tags"><span class="htag htag-type">elite</span><span class="htag htag-elite">★ all layers</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Elite</div></div>
+
+    <div class="hook elite-hook" data-type="elite"><div class="hook-idx">85</div><div class="hook-body"><p class="hook-text">This generation has access to something no generation before them ever had. Most are using it to watch videos.</p><div class="hook-tags"><span class="htag htag-type">elite</span><span class="htag htag-elite">★ all layers</span></div></div><div class="hook-bar">Elite</div></div>
+
+    <div class="hook elite-hook" data-type="elite"><div class="hook-idx">86</div><div class="hook-body"><p class="hook-text">You told yourself you'd start this weekend. It's been six weekends. This is why that keeps happening.</p><div class="hook-tags"><span class="htag htag-type">elite</span><span class="htag htag-elite">★ all layers</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Elite</div></div>
+
+    <div class="hook elite-hook" data-type="elite"><div class="hook-idx">87</div><div class="hook-body"><p class="hook-text">Attention is not random. It follows a pattern. Once you see it you can never scroll the same way again.</p><div class="hook-tags"><span class="htag htag-type">elite</span><span class="htag htag-elite">★ all layers</span></div></div><div class="hook-bar">Elite</div></div>
+
+    <div class="hook elite-hook" data-type="elite"><div class="hook-idx">88</div><div class="hook-body"><p class="hook-text">Wait — this is the exact mistake that kept me inside the matrix for three years without knowing it.</p><div class="hook-tags"><span class="htag htag-type">elite</span><span class="htag htag-elite">★ all layers</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Elite</div></div>
+
+    <div class="hook elite-hook" data-type="elite"><div class="hook-idx">89</div><div class="hook-body"><p class="hook-text">Nobody told us this was possible. So most of us stayed in the 9 to 5 and called it security.</p><div class="hook-tags"><span class="htag htag-type">elite</span><span class="htag htag-elite">★ all layers</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Elite</div></div>
+
+    <div class="hook elite-hook" data-type="elite"><div class="hook-idx">90</div><div class="hook-body"><p class="hook-text">Real talk. You already know what to do. This is why you keep not doing it — and it's not what you think.</p><div class="hook-tags"><span class="htag htag-type">elite</span><span class="htag htag-elite">★ all layers</span><span class="htag htag-new">new</span></div></div><div class="hook-bar">Elite</div></div>
+
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <span>90 Hook Arsenal · Master Collection</span>
+  <span>TikTok · Cold Traffic · Full Authority</span>
+</footer>
+
+<script>
+  const activeTypes = new Set(['incomplete','mirror','slang','interrupt','feeling','elite']);
+
+  function filterType(type, el) {
+    el.classList.toggle('on');
+    if (activeTypes.has(type)) activeTypes.delete(type);
+    else activeTypes.add(type);
+
+    document.querySelectorAll('.hook').forEach(h => {
+      const t = h.dataset.type;
+      h.classList.toggle('hidden', !activeTypes.has(t));
+    });
+  }
+
+  function scrollTo(id) {
+    document.getElementById(id).scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  function showAll(el) {
+    document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
